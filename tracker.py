@@ -161,7 +161,7 @@ if __name__ == "__main__":
 			continue
 		lastTime = fd.time
 
-#		print("Now: {}".format(fd.time))
+		print("Now: {}".format(fd.time))
 
 		current = dict() # current aircraft inside alarm zone
 
@@ -174,9 +174,9 @@ if __name__ == "__main__":
 			if a.distance < abovetustin_distance_alarm or a.altitude < abovetustin_elevation_alarm:
 				# add it to the current dictionary
 				current[a.hex] = a 
-#				print("{}: {}mi, {}az, {}el, {}alt, {}dB, {}seen".format(
-#					a.ident_desc(), "%.1f" % a.distance, "%.1f" % a.az, "%.1f" % a.altitude,
-#					a.altitude, "%0.1f" % a.rssi, "%.1f" % (a.seen or 0)))
+				print("{}: {}mi, {}az, {}el, {}alt, {}dB, {}seen".format(
+					a.ident_desc(), "%.1f" % a.distance, "%.1f" % a.az, "%.1f" % a.altitude,
+					a.altitude, "%0.1f" % a.rssi, "%.1f" % (a.seen or 0)))
 				if a.hex in alarms:
 					#if it's already in the alarms dict, check to see if we're closer
 					if a.distance < alarms[a.hex][0].distance:
@@ -193,7 +193,7 @@ if __name__ == "__main__":
 			# check to see if it's in the current set of aircraft
 			for h2, a2 in current.items():
 				if h2 == h:
-#					print("{} not yet, dist, elv: {}, {}".format(h, "%.1f" % a[0].distance, "%.1f" % a[0].el))
+					print("{} not yet, dist, elv: {}, {}".format(h, "%.1f" % a[0].distance, "%.1f" % a[0].el))
 					found = True
 					break
 			# if it wasn't in the current set of aircraft, that means it's time to tweet!
