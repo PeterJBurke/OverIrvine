@@ -5,8 +5,8 @@ map_url = http://localhost/tar1090/
 request_timeout = 60
 
 ; An airplane is only tracked and tweeted when it enters the "alarm area" the alarm area
-; is defined by the "distance_alarm" in miles, and the elevation_alarm in degrees from
-; the horizon. If any airplane travels closer than the distance_alarm or higher than the
+; is defined by the "distance_alarm" in miles, and the elevation_alarm NOT in degrees from
+; the horizon, changed to Altitude in feet. If any airplane travels closer than the distance_alarm or LOWER (changed) than the
 ; elevation_alarm it will be tracked until it leaves the alarm area.  After
 ; "wait_x_updates" updates it will then make the tweet.  It waits "sleep_time" between
 ; each update.
