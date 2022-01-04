@@ -171,11 +171,11 @@ if __name__ == "__main__":
 			if a.lat == None or a.lon == None or a.track == None:
 				continue
 			# check to see if it's in the alarm zone:
-			if a.distance < abovetustin_distance_alarm or a.el > abovetustin_elevation_alarm:
+			if a.distance < abovetustin_distance_alarm or a.altitude < abovetustin_elevation_alarm:
 				# add it to the current dictionary
 				current[a.hex] = a 
 #				print("{}: {}mi, {}az, {}el, {}alt, {}dB, {}seen".format(
-#					a.ident_desc(), "%.1f" % a.distance, "%.1f" % a.az, "%.1f" % a.el,
+#					a.ident_desc(), "%.1f" % a.distance, "%.1f" % a.az, "%.1f" % a.altitude,
 #					a.altitude, "%0.1f" % a.rssi, "%.1f" % (a.seen or 0)))
 				if a.hex in alarms:
 					#if it's already in the alarms dict, check to see if we're closer
