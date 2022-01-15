@@ -8,6 +8,9 @@ config.ini
 #ignore nohup.out
 nohup.out
 
+#ignore data.txt
+data.txt
+
 
 #ignore tweet.png the image it saves on each tweet:
 tweet.png

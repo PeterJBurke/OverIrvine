@@ -52,6 +52,13 @@ twitter_consumer_secret = parser.get('twitter', 'consumer_secret')
 twitter_access_token = parser.get('twitter', 'access_token')
 twitter_access_token_secret = parser.get('twitter', 'access_token_secret')
 
+# Assign AWSIOT variables:
+host = parser.get('awsiot', 'awsiot_host')
+port = int(parser.get('awsiot', 'awsiot_port'))
+rootCAPath = parser.get('awsiot', 'awsiot_rootCAPath')
+privateKeyPath = parser.get('awsiot', 'awsiot_privateKeyPath')
+certificatePath = parser.get('awsiot', 'awsiot_certificatePath')
+
 # Define AWSIOT variables:
 myAWSIoTMQTTClient = None
 clientId = "basicPubSub"
@@ -162,12 +169,7 @@ def setupAWSIOT():
 
     # Init AWSIoTMQTTClient
 
-   # clientId = "basicPubSub"
-    host = "a2crnqi4jraxo6-ats.iot.us-west-2.amazonaws.com"
-    port = 8883
-    rootCAPath = "/home/pi/awsiot/root-CA.crt"
-    privateKeyPath = "/home/pi/awsiot/adsbpi.private.key"
-    certificatePath = "/home/pi/awsiot/adsbpi.cert.pem"
+  
 
   #  myAWSIoTMQTTClient = AWSIoTMQTTClient(clientId)
     myAWSIoTMQTTClient.configureEndpoint(host, port)
