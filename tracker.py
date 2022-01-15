@@ -64,6 +64,9 @@ myAWSIoTMQTTClient = None
 clientId = "basicPubSub"
 myAWSIoTMQTTClient = AWSIoTMQTTClient(clientId)
 
+# Whether to write tracks to file
+m_write_tracks_to_file = True
+
 # Login to twitter.
 twit = Twitter(auth=(OAuth(twitter_access_token, twitter_access_token_secret,
                twitter_consumer_key, twitter_consumer_secret)))
@@ -218,6 +221,12 @@ if __name__ == "__main__":
     f.write("ID\tDist.(miles)\tAlt(ft)\tTime\n")
     f.close()
 
+    if(m_write_tracks_to_file == True):
+        f = open("datatracks.txt", "w")
+        f.write("ID\tDist.(miles)\tAlt(ft)\tLat\tLon\tTime\n")
+        f.close()
+
+
     while True:
         #		if time.time() > lastReloadTime + 3600 and len(alarms) == 0:
         #			print("one hour since last browser reload... reloading now")
@@ -235,7 +244,7 @@ if __name__ == "__main__":
         current = dict()  # current aircraft inside alarm zone
 
         # loop on all the aircarft in the receiver
-        for a in fd.aircraft:
+        for a in fd.aircraft: # from aircraft.json
             # if they don't have lat/lon or a heading skip them
             if a.lat == None or a.lon == None or a.track == None:
                 continue
@@ -244,6 +253,16 @@ if __name__ == "__main__":
                 # add it to the current dictionary
                 current[a.hex] = a
                 # print("Hornet in the groove!")
+                if(m_write_tracks_to_file == True):
+                    f = open("datatracks.txt", "w")
+#				f.write("ID\tDist.(miles)\tAlt(ft)\tTime")
+#               f.write("ID\tDist.(miles)\tAlt(ft)\tLat\tLon\tTime\n")
+                    txt = "{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                    a.ident_desc(), "%.2f" % a.distance, "%.0f" % a.altitude, "%.8f" % a.lat, "%.8f" % a.lon, (fd.time))
+                    f.write(txt)
+                    f.close()
+                    #print(txt)
+
                 # print("{}: {}mi, {}az, {}el, {}alt, {}dB, {}seen".format(
                 #	a.ident_desc(), "%.1f" % a.distance, "%.1f" % a.az, "%.1f" % a.altitude,
                 #	a.altitude, "%0.1f" % a.rssi, "%.1f" % (a.seen or 0)))
@@ -273,6 +292,7 @@ if __name__ == "__main__":
                 publishtoAWSIOT(messageJson)
 
             found = False
+
             # check to see if it's in the current set of aircraft
             for h2, a2 in current.items():
                 # print("{}: {}mi, {}alt".format(a[0].ident_desc(),"%.1f" % a[0].distance,"%.0f" % a[0].altitude))
