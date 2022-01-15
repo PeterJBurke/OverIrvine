@@ -1,4 +1,11 @@
-# OverPutney
+# OverIrvine
+
+Fork of OverPutney.
+Updated.
+Pushes data to AWSIOT.
+Tweet, screenshot not yet working. FA also not working.
+Saves data.txt file of nearest distance, time, alt., ID of each plane within range.
+Changed to alt instead of angle above horizon.
 
 [OverPutney](https://twitter.com/overputney) is an ADS-B Twitter Bot running on a Raspberry Pi 4.  It tracks airplanes and then tweets whenever an airplane flies overhead. It is a fork of the original AboveTustin bot, modified to work on a Piaware with Flightaware's fork of dump1090 and adding support for [Josh Douch's free ICAO lookup APIs](https://api.joshdouch.me/). It also uses chromedriver for browser interactions rather than the deprecated PhantomJS webdriver.
 

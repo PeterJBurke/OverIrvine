@@ -4,8 +4,10 @@ After=network-online.target
 
 [Service]
 Type=simple
+User=pi
+WorkingDirectory=/home/pi/OverIrvine
 ExecStart=/usr/bin/python3 /home/pi/OverIrvine/tracker.py
-Restart=on-failure
+
 
 [Install]
 WantedBy=multi-user.target
