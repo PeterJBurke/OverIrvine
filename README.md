@@ -53,7 +53,9 @@ git clone https://github.com/PeterJBurke/OverIrvine.git
 
 ## Notes
 
-Add your Twitter keys and location in lat/long to `config` and rename as `config.ini` before running. The `./runbot.sh` script will launch the looping script `run_tracker.sh` (which ensures the tracker python code is running) as a background task with no interaction. Use `tail -f nohup.out` to monitor operations. `pkill -f tracker` will shut down the bot.
+Add your Twitter keys and location in lat/long to `config` and rename as `config.ini` before running. Also for AWS IOT add your certificates keys etc in the /keys directory and then put the filename in the config.ini file. (No quotes.) The `./runbot.sh` script will launch the looping script `run_tracker.sh` (which ensures the tracker python code is running) as a background task with no interaction. Use `tail -f nohup.out` to monitor operations. `pkill -f tracker` will shut down the bot.
+
+Cat data.txt will show you a list of planes that were within range.
 
 ## Forked from the [AboveTustin](https://github.com/kevinabrandon/AboveTustin) code written by
 * [Kevin Brandon](https://github.com/kevinabrandon)
