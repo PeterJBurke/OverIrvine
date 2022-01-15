@@ -254,7 +254,7 @@ if __name__ == "__main__":
                 current[a.hex] = a
                 # print("Hornet in the groove!")
                 if(m_write_tracks_to_file == True):
-                    f = open("datatracks.txt", "w")
+                    f = open("datatracks.txt", "a")
 #				f.write("ID\tDist.(miles)\tAlt(ft)\tTime")
 #               f.write("ID\tDist.(miles)\tAlt(ft)\tLat\tLon\tTime\n")
                     txt = "{}\t{}\t{}\t{}\t{}\t{}\n".format(
