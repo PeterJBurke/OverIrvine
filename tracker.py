@@ -262,6 +262,20 @@ if __name__ == "__main__":
                     f.write(txt)
                     f.close()
                     #print(txt)
+                    # now push to AWSIOT
+                    # Try to make a dictionary:
+                    message = {}
+                    message['ID'] = a.ident_desc()
+                    message['distance'] = a.distance
+                    message['altitude'] = a.altitude
+                    message['latitude'] = a.lat
+                    message['longitude'] = a.lon
+                    message['tUTC'] = "{}".format(fd.time)
+                    messageJson = json.dumps(message)
+                    #print(messageJson)
+                    publishtoAWSIOT(messageJson)
+
+
 
                 # print("{}: {}mi, {}az, {}el, {}alt, {}dB, {}seen".format(
                 #	a.ident_desc(), "%.1f" % a.distance, "%.1f" % a.az, "%.1f" % a.altitude,
@@ -286,6 +300,8 @@ if __name__ == "__main__":
                 message['ID'] = a[0].ident_desc()
                 message['distance'] = a[0].distance
                 message['altitude'] = a[0].altitude
+                message['latitude'] = a[0].lat
+                message['longitude'] = a[0].lon
                 message['time'] = "{}".format(fd.time)
                 messageJson = json.dumps(message)
                 # print(messageJson)
@@ -344,6 +360,8 @@ if __name__ == "__main__":
                     message['ID'] = a[0].ident_desc()
                     message['distance'] = a[0].distance
                     message['altitude'] = a[0].altitude
+                    message['latitude'] = a[0].lat
+                    message['longitude'] = a[0].lon
                     message['tUTC'] = "{}".format(fd.time)
                     messageJson = json.dumps(message)
                     # print(messageJson)
