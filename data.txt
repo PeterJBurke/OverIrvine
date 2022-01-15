@@ -1,1 +1,2 @@
 ID	Dist.(miles)	Alt(ft)	Time
+A997CC/DAL552  	0.6	21175	2022-01-15 06:05:14.800000
