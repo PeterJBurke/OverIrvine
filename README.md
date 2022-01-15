@@ -31,14 +31,14 @@ Changed to alt instead of angle above horizon.
 ### Create SD card from ADSBexchange, configure it, get it running.
 ### Download needed packages:
 ```
-  sudo apt update; 
-sudo apt upgrade; 
-  pip3 install twitter; 
-  pip3 install requests; 
-  pip3 install selenium; 
-  pip3 install cryptography; 
-  pip3 install Pillow; 
-  sudo apt-get install chromium-chromedriver; 
+  sudo apt update 
+  sudo apt upgrade 
+  pip3 install twitter 
+  pip3 install requests 
+  pip3 install selenium 
+  pip3 install cryptography 
+  pip3 install Pillow 
+  sudo apt-get install chromium-chromedriver 
   pip3 install --upgrade requests
   ```
 ### clone it
@@ -46,7 +46,9 @@ sudo apt upgrade;
 git clone https://github.com/PeterJBurke/OverIrvine.git
 ```
 ### Run it (manually)!
+```
    python3 tracker.py 
+```
 **Gives output and tweets every time a plane in view. Then got banned from twitter….
 
 ## Notes
