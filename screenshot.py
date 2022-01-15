@@ -156,15 +156,15 @@ class Dump1090Display(AircraftDisplay):
         '''
         print(text)
         try:
-            element = self.browser.find_elements_by_xpath("//td[text()='%s']" % text.lower())
-            print("number of elements found: %i" % len(element))
-            if len(element) > 0:
-                print("clicking on {}!".format(text))
-                element[0].click()
-                time.sleep(0.5) # if we don't wait a little bit the airplane icon isn't drawn.
+            #element = self.browser.find_elements_by_xpath("//td[text()='%s']" % text.lower())
+            #print("number of elements found: %i" % len(element))
+            #if len(element) > 0:
+                #print("clicking on {}!".format(text))
+                #element[0].click()
+                #time.sleep(0.5) # if we don't wait a little bit the airplane icon isn't drawn.
                 return self.screenshot('tweet.png')
-            else:
-                print("couldn't find the object")
+            #else:
+                #print("couldn't find the object")
         except Exception as e:
             util.error("Could not click on airplane: {}".format(e))
             return None
@@ -199,12 +199,12 @@ class VRSDisplay(AircraftDisplay):
         Clicks on the airplane with the name text, and then takes a screenshot
         '''
         try:
-            aircraft = self.browser.find_element_by_xpath("//td[text()='%s']" % text)
-            aircraft.click()
-            time.sleep(0.5) # if we don't wait a little bit the airplane icon isn't drawn.
-            show_on_map = self.browser.find_element_by_link_text('Show on map')
-            show_on_map.click()
-            time.sleep(3.0)
+            #aircraft = self.browser.find_element_by_xpath("//td[text()='%s']" % text)
+            #aircraft.click()
+            #time.sleep(0.5) # if we don't wait a little bit the airplane icon isn't drawn.
+            #show_on_map = self.browser.find_element_by_link_text('Show on map')
+            #show_on_map.click()
+            #time.sleep(3.0)
             return self.screenshot('tweet.png')
         except Exception as e:
             util.error("Unable to click on airplane: {}'".format(e))

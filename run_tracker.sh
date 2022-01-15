@@ -4,8 +4,8 @@
 # and then loops forever restarting the tracker program if it ever exits.
 #
 
-cd /home/pi/OverPutney
-source bin/activate
+cd /home/pi/OverIrvine
+#source bin/activate
 
 
 while :
