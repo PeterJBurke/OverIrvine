@@ -57,6 +57,9 @@ Add your Twitter keys and location in lat/long to `config` and rename as `config
 
 Cat data.txt will show you a list of planes that were within range.
 
+You can run as a systemd service using the service file and copying into 
+/etc/systemd/system/OverIrvine.service OverIrvine.service
+
 ## Forked from the [AboveTustin](https://github.com/kevinabrandon/AboveTustin) code written by
 * [Kevin Brandon](https://github.com/kevinabrandon)
 * [Joseph Prochazka](https://github.com/jprochazka)
