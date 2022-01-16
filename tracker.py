@@ -194,7 +194,7 @@ def setupAWSIOT():
 
 def publishtoAWSIOT(stringtopublish):
 
-    topic = "sdk/test/Python"
+    topic = "m_adsb_topic"
     myAWSIoTMQTTClient.publish(topic, stringtopublish, 1)
     print('Published topic %s: %s\n' % (topic, stringtopublish))
     time.sleep(1)
@@ -270,7 +270,7 @@ if __name__ == "__main__":
                     message['altitude'] = a.altitude
                     message['latitude'] = a.lat
                     message['longitude'] = a.lon
-                    message['tUTC'] = "{}".format(fd.time)
+                    #message['tUTC'] = "{}".format(fd.time)
                     messageJson = json.dumps(message)
                     #print(messageJson)
                     publishtoAWSIOT(messageJson)
@@ -302,7 +302,7 @@ if __name__ == "__main__":
                 message['altitude'] = a[0].altitude
                 message['latitude'] = a[0].lat
                 message['longitude'] = a[0].lon
-                message['time'] = "{}".format(fd.time)
+                #message['time'] = "{}".format(fd.time)
                 messageJson = json.dumps(message)
                 # print(messageJson)
                 publishtoAWSIOT(messageJson)
