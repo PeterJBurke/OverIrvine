@@ -67,6 +67,49 @@ myAWSIoTMQTTClient = AWSIoTMQTTClient(clientId)
 # Whether to write tracks to file
 m_write_tracks_to_file = True
 
+
+# NOTES:
+# GLOBALS:
+# alarms = [ hex, (aircraftobject, counter) ]
+# is a dictionary
+# all aircaft that have triggered the alarm
+# [ hex, (aircraftobject, counter) ]
+
+# WITHIN MAIN LOOP:
+# CREATE CURRENT
+# current = [ hex, aircraftobject ]
+# is a dictionary
+# current aircraft in the alarm zone
+
+# FILL CURRENT (# UPDATE ALARMS)
+# loop through all aircraft in the receiver (from aircraftdata.json)
+# - if in zone: add to current
+#   -- if not in alarms, add it to alarms
+#   -- if already in alarms, replace with newer closer distance
+
+# CREATE FINISHEDALARMS
+# finishedalarms = (aircraftobject)
+# new empty list of aircraft that have tweeted
+
+# LOOP CURRENT ALARMS TO SEE IF ONE FLEW OUT OF ALARM ZONE
+# loop the alarms, current
+# in the loop it is h,a from alarms = [ hex, (aircraftobject, counter) ]
+# so a[0] is the aircraft object from alarms
+# in the loop, it is h2,a2 from current = [ hex, aircraftobject ]
+# so h2 is the hex, a2 the aircraftobject from current
+
+# compare
+# - if an aircraft in alarms but not in current
+#   means it flew out of alarm zone
+#   -- tweet (don't increment, sometimes can wait a few cycles)
+#   -- add to finishedalarms
+
+# loop through finishedalarms
+# - remove from alarms if already tweeted
+
+
+
+
 # Login to twitter.
 twit = Twitter(auth=(OAuth(twitter_access_token, twitter_access_token_secret,
                twitter_consumer_key, twitter_consumer_secret)))
@@ -205,8 +248,6 @@ if __name__ == "__main__":
     print("settup up AWSIOT")
     setupAWSIOT()
     print("done setting up AWSIOT")
-    lastReloadTime = time.time()
-#	display = datasource.get_map_source()
     alarms = dict()  # dictonary of all aircraft that have triggered the alarm
     # Indexed by it's hex code, each entry contains a tuple of
     # the aircraft data at the closest position so far, and a
@@ -217,48 +258,35 @@ if __name__ == "__main__":
     fd = datasource.get_data_source()
     lastTime = fd.time
 
-    f = open("data.txt", "w")
+    f = open("data.txt", "w") # file header
     f.write("ID\tDist.(miles)\tAlt(ft)\tTime\n")
     f.close()
 
-    if(m_write_tracks_to_file == True):
+    if(m_write_tracks_to_file == True): # file header
         f = open("datatracks.txt", "w")
         f.write("ID\tDist.(miles)\tAlt(ft)\tLat\tLon\tTime\n")
         f.close()
 
 
     while True:
-        #		if time.time() > lastReloadTime + 3600 and len(alarms) == 0:
-        #			print("one hour since last browser reload... reloading now")
-        #			display.reload()
-        #			lastReloadTime = time.time()
-
         sleep(abovetustin_sleep_time)
-        fd.refresh()
+        fd.refresh() # reload aircraft.json
         if fd.time == lastTime:
             continue
         lastTime = fd.time
-
-        # print("Now: {}".format(fd.time))
-
+        # CREATE CURRENT:
         current = dict()  # current aircraft inside alarm zone
-
-        # loop on all the aircarft in the receiver
-        for a in fd.aircraft: # from aircraft.json
-            # if they don't have lat/lon or a heading skip them
-            if a.lat == None or a.lon == None or a.track == None:
+        # FILL CURRENT: (# UPDATE ALARMS)
+        for a in fd.aircraft: # loop on all the aircarft in the receiver from aircraft.json
+            if a.lat == None or a.lon == None or a.track == None: # if they don't have lat/lon or a heading skip them
                 continue
             # check to see if it's in the alarm zone:
-            if a.distance < abovetustin_distance_alarm and a.altitude < abovetustin_elevation_alarm:
-                # add it to the current dictionary
-                current[a.hex] = a
-                # print("Hornet in the groove!")
-                if(m_write_tracks_to_file == True):
+            if a.distance < abovetustin_distance_alarm and a.altitude < abovetustin_elevation_alarm: # print("Hornet in the groove!")
+                current[a.hex] = a # add it to the current dictionary
+                if(m_write_tracks_to_file == True): # Write to file
                     f = open("datatracks.txt", "a")
-#				f.write("ID\tDist.(miles)\tAlt(ft)\tTime")
-#               f.write("ID\tDist.(miles)\tAlt(ft)\tLat\tLon\tTime\n")
                     txt = "{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                    a.ident_desc(), "%.2f" % a.distance, "%.0f" % a.altitude, "%.8f" % a.lat, "%.8f" % a.lon, (fd.time))
+                    a.ident_desc(), "%.3f" % a.distance, "%.0f" % a.altitude, "%.8f" % a.lat, "%.8f" % a.lon, (fd.time))
                     f.write(txt)
                     f.close()
                     #print(txt)
@@ -274,88 +302,47 @@ if __name__ == "__main__":
                     messageJson = json.dumps(message)
                     #print(messageJson)
                     publishtoAWSIOT(messageJson)
-
-
-
-                # print("{}: {}mi, {}az, {}el, {}alt, {}dB, {}seen".format(
-                #	a.ident_desc(), "%.1f" % a.distance, "%.1f" % a.az, "%.1f" % a.altitude,
-                #	a.altitude, "%0.1f" % a.rssi, "%.1f" % (a.seen or 0)))
-                if a.hex in alarms:
+                if a.hex in alarms: (# UPDATE ALARMS: CHANGE DISTANCE)
                     # if it's already in the alarms dict, check to see if we're closer
                     if a.distance < alarms[a.hex][0].distance:
                         # if we're closer than the one already there, then overwrite it
                         alarms[a.hex] = (a, 0)
-                else:
+                else: (# UPDATE ALARMS: ADD)
                     # add it to the alarms
                     alarms[a.hex] = (a, 0)
-
+        #******************************************************
+        # CREATE FINISHEDALARMS
         finishedalarms = []
-        # loop on all the aircraft in the alarms dict
-        for h, a in alarms.items():
-            # test code on a[0] here:
-            m_debug=False
-            if(m_debug==True):
-                # Try to make a dictionary:
-                message = {}
-                message['ID'] = a[0].ident_desc()
-                message['distance'] = a[0].distance
-                message['altitude'] = a[0].altitude
-                message['latitude'] = a[0].lat
-                message['longitude'] = a[0].lon
-                #message['time'] = "{}".format(fd.time)
-                messageJson = json.dumps(message)
-                # print(messageJson)
-                publishtoAWSIOT(messageJson)
-
+ 
+        # LOOP CURRENT & ALARMS TO SEE IF ONE FLEW OUT OF ALARM ZONE (IN ALARMS BUT NOT IN CURRENT)
+        for h, a in alarms.items():  # loop on all the aircraft in the ALARMS dict
+            # h,a from ALARMS = [ hex, (aircraftobject, counter) ]
             found = False
-
-            # check to see if it's in the current set of aircraft
-            for h2, a2 in current.items():
-                # print("{}: {}mi, {}alt".format(a[0].ident_desc(),"%.1f" % a[0].distance,"%.0f" % a[0].altitude))
-
-                #				f = open("data.txt", "a")
-                #				f.write("ID\tDist.(miles)\tAlt(ft)\tTime")
-                #				txt = "{}\t{}\t{}\t{}\n".format(a[0].ident_desc(),"%.1f" % a[0].distance,"%.0f" % a[0].altitude,(fd.time))
-                #				f.write(txt)
-                #				f.close()
-                #				print(txt)
-
-                #				print("{}: {}mi, {}alt, {}".format(a[0].ident_desc(),"%.1f" % a[0].distance,"%.0f" % a[0].altitude,(fd.time)))
+            for h2, a2 in current.items(): # loop on all the aircraft in the CURRENT dict
+                # h2,a2 from CURRENT = [ hex, aircraftobject ]
                 if h2 == h:
-                    # print("{} not yet, dist, elv: {}, {}".format(h, "%.1f" % a[0].distance, "%.1f" % a[0].el))
-                    # havescreenshot = display.clickOnAirplane(h)
-                    # print('took screenshot of')
-                    # print(h)
                     found = True
                     break
-            # if it wasn't in the current set of aircraft, that means it's time to tweet!
-            if not found:
-                if a[1] < abovetustin_wait_x_updates:
+            
+            if not found: # h,a in ALARMS but not in CURRENT, means it flew out of alarm, tweet!
+                if a[1] < abovetustin_wait_x_updates: # NOT YET, WAIT ANOTHER CYCLE
                     alarms[h] = (a[0], a[1]+1)
-                else:
-                    havescreenshot = False
-                    # if display != None:
-                    # print("time to create screenshot of {}:".format(a[0]))
-                    # print("Plane spotted {}:".format(a[0]))
-                    # hexcode = a[0].hex
-                    # hexcode = hexcode.replace(" ", "")
-                    # hexcode = hexcode.replace("~", "")
-                    # havescreenshot = display.clickOnAirplane(hexcode)
+                else:  # TIME TO TWEET
+                    # Get FA on plane to tweet.
                     if fa_enable:
                         print("Getting FlightAware flight details")
                         faInfo = fa_api.FlightInfo(
                             a[0].flight, fa_username, fa_api_key)
                     else:
                         faInfo = False
+                    # Write plane to tweet to data.txt file.
                     f = open("data.txt", "a")
-#				f.write("ID\tDist.(miles)\tAlt(ft)\tTime")
                     txt = "{}\t{}\t{}\t{}\n".format(
-                        a[0].ident_desc(), "%.1f" % a[0].distance, "%.0f" % a[0].altitude, (fd.time))
+                        a[0].ident_desc(), "%.3f" % a[0].distance, "%.0f" % a[0].altitude, (fd.time))
                     f.write(txt)
                     f.close()
                     print(txt)
-                    # now push to AWSIOT
-                    # Try to make a dictionary:
+                    # Write plane to tweet to AWSIOT cloud
                     message = {}
                     message['ID'] = a[0].ident_desc()
                     message['distance'] = a[0].distance
@@ -367,22 +354,6 @@ if __name__ == "__main__":
                     # print(messageJson)
                     publishtoAWSIOT(messageJson)
 
-                    # print("time to tweet!!!!!")
-                    # print("Hornet LEFT the groove!")
-#					print("Now: {}".format(fd.time))
-#					print("{}: {}mi, {}el, {}alt, {}dB, {}seen".format(a[0].ident_desc(), "%.1f" % a[0].distance,
-#											    "%.1f" % a[0].altitude,
-#												   "%0.1f" % a[0].rssi,
-#												  "%.1f" % (a[0].seen or 0)))
-#					with open('filename.txt', 'w') as f:
-#						print('This message will be written to a file.', file=f)
-#					print("{}: {}mi, {}alt, {}".format(a[0].ident_desc(),"%.1f" % a[0].distance,"%.0f" % a[0].altitude,(fd.time)))
-                    # try:
-                    # Tweet(a[0], havescreenshot)
-                    # print("banned from twitter!!!!!")
-                    # except Exception:
-                    # print("exception in Tweet():")
-                    # traceback.print_exc()
                     finishedalarms.append(a[0].hex)
 
         # for each alarm that is finished, delete it from the dictionary
