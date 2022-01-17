@@ -302,7 +302,7 @@ if __name__ == "__main__":
                     messageJson = json.dumps(message)
                     #print(messageJson)
                     publishtoAWSIOT(messageJson)
-                if a.hex in alarms: (# UPDATE ALARMS: CHANGE DISTANCE)
+                if a.hex in alarms: # UPDATE ALARMS: CHANGE DISTANCE)
                     # if it's already in the alarms dict, check to see if we're closer
                     if a.distance < alarms[a.hex][0].distance:
                         # if we're closer than the one already there, then overwrite it
