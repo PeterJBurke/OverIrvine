@@ -264,7 +264,7 @@ if __name__ == "__main__":
 
     if(m_write_tracks_to_file == True): # file header
         f = open("datatracks.txt", "w")
-        f.write("ID\tDist.(miles)\tAlt(ft)\tLat\tLon\tTime\n")
+        f.write("ID\tDist.(miles)\tAlt(ft)\tLat\tLon\tCat\tType\tTime\n")
         f.close()
 
 
@@ -285,8 +285,10 @@ if __name__ == "__main__":
                 current[a.hex] = a # add it to the current dictionary
                 if(m_write_tracks_to_file == True): # Write to file
                     f = open("datatracks.txt", "a")
-                    txt = "{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                    a.ident_desc(), "%.3f" % a.distance, "%.0f" % a.altitude, "%.8f" % a.lat, "%.8f" % a.lon, (fd.time))
+                    txt = "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                    a.ident_desc(), "%.3f" % a.distance, "%.0f" % a.altitude, "%.8f" % a.lat, "%.8f" % a.lon,a.m_category,a.m_type, (fd.time))
+                    #txt = "{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                    #a.ident_desc(), "%.3f" % a.distance, "%.0f" % a.altitude, "%.8f" % a.lat, "%.8f" % a.lon, (fd.time))
                     f.write(txt)
                     f.close()
                     #print(txt)

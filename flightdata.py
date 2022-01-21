@@ -84,6 +84,8 @@ class AirCraftData():
                  dist, 
                  az,
                  el,
+                 m_category,
+                 m_type,
                  time):
         self.hex = dhex
         self.squawk = squawk
@@ -104,6 +106,8 @@ class AirCraftData():
         self.distance = dist
         self.az = az
         self.el = el
+        self.m_category = m_category
+        self.m_type = m_type
         self.time = time
 
     def __str__(self):
@@ -171,6 +175,8 @@ class VRSDataParser(AircraftDataParser):
             dist,
             az,
             el,
+            a.get('Type', None),
+            a.get('Category', None),
             time)
         return ac_data
 
@@ -224,6 +230,8 @@ class Dump1090DataParser(AircraftDataParser):
                 dist,
                 az,
                 el,
+                a["category"] if "category" in a else None,
+                a["type"] if "type" in a else None,                
                 time)
 
             aircraft_list.append(aircraftdata)
