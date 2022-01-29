@@ -5,7 +5,6 @@
 #
 
 import sys
-from tabnanny import check
 import traceback
 import time
 from time import sleep
@@ -26,7 +25,6 @@ import logging
 import time
 import argparse
 import json
-from datetime import datetime
 
 # Read the configuration file for this application.
 parser = ConfigParser()
@@ -236,15 +234,6 @@ def setupAWSIOT():
     myAWSIoTMQTTClient.connect()
     time.sleep(2)
 
-def check_and_create_filename(current_file_name=None):
-    new_file_name=datetime.now().strftime("%Y_%m_%d")+'.dat'
-    #new_file_name=datetime.now().strftime("%Y_%m_%d-%I_%M_%S_%p")+'.dat'
-    # example: '2020_08_12-03_29_22_AM'
-    time.sleep(0.1)
-    if new_file_name==current_file_name:        
-        return current_file_name # needs new name
-    else:
-        return new_file_name
 
 def publishtoAWSIOT(stringtopublish):
 
@@ -256,9 +245,9 @@ def publishtoAWSIOT(stringtopublish):
 
 if __name__ == "__main__":
 
-    #print("settup up AWSIOT")
-    #setupAWSIOT()
-    #print("done setting up AWSIOT")
+    print("settup up AWSIOT")
+    setupAWSIOT()
+    print("done setting up AWSIOT")
     alarms = dict()  # dictonary of all aircraft that have triggered the alarm
     # Indexed by it's hex code, each entry contains a tuple of
     # the aircraft data at the closest position so far, and a
@@ -269,27 +258,14 @@ if __name__ == "__main__":
     fd = datasource.get_data_source()
     lastTime = fd.time
 
-    if(m_write_tracks_to_file == True): # file header
-        m_current_filename=check_and_create_filename()
-        print('creating output file ',m_current_filename)
-        f = open(m_current_filename, "w") # file header
-        #f = open("datatracks.txt", "w")
-        f.write("|  icao   | flight  | alt   | dist | rssi  |   type       |  cat | seen  | mesg  | lat        | long       |         time            |\n")
-        f.write("|---------+---------+-------+------+-------+--------------+------+-------+-------+------------+------------+-------------------------|\n")
-        #f.write("ID\tDist.(miles)\tAlt(ft)\tLat\tLon\tCat\tType\tTime\n")
-
-        f.close()
-
-    f = open('data.txt', "w") # file header  
+    f = open("data.txt", "w") # file header
     f.write("ID\tDist.(miles)\tAlt(ft)\tTime\n")
-    f.write("|  icao   | flight  | alt   | dist | rssi  |   type       |  cat | seen  | mesg  | lat        | long      |         time            |\n")
-    f.write("|---------+---------+-------+------+-------+--------------+------+-------+-------+------------+-----------+-------------------------|\n")
     f.close()
-    #print("ID\tDist.(miles)\tAlt(ft)\tTime")
-    print("|  icao   | flight  | alt   | dist | rssi  |   type       |  cat | seen  | mesg  | lat        | long       |         time            |")
-    print("|---------+---------+-------+------+-------+--------------+------+-------+-------+------------+------------+-------------------------|")
 
-
+    if(m_write_tracks_to_file == True): # file header
+        f = open("datatracks.txt", "w")
+        f.write("ID\tDist.(miles)\tAlt(ft)\tLat\tLon\tCat\tType\tTime\n")
+        f.close()
 
 
     while True:
@@ -302,87 +278,18 @@ if __name__ == "__main__":
         current = dict()  # current aircraft inside alarm zone
         # FILL CURRENT: (# UPDATE ALARMS)
         for a in fd.aircraft: # loop on all the aircarft in the receiver from aircraft.json
-            if a.lat == None or a.lon == None or a.track == None or a.m_type == 'tisb_trackfile': # if they don't have lat/lon or a heading skip them
+            if a.lat == None or a.lon == None or a.track == None: # if they don't have lat/lon or a heading skip them
                 continue
             # check to see if it's in the alarm zone:
             if a.distance < abovetustin_distance_alarm and a.altitude < abovetustin_elevation_alarm: # print("Hornet in the groove!")
                 current[a.hex] = a # add it to the current dictionary
                 if(m_write_tracks_to_file == True): # Write to file
-                    #f = open("datatracks.txt", "a")
-                    if check_and_create_filename() == m_current_filename: # no need to change file we are writing to
-                        f = open(m_current_filename, "a")
-                    if  (check_and_create_filename() != m_current_filename): # need to create new file:
-                         m_current_filename = check_and_create_filename()
-                         f = open(m_current_filename, "a")
-                    # txt = "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
-                    # a.ident_desc(), "%.3f" % a.distance, "%.0f" % a.altitude, "%.8f" % a.lat, "%.8f" % a.lon,a.m_category,a.m_type, (fd.time))
-
-
-                    # m_xyz = a.xyz
-                    # if m_xyz == None:
-                    #     m_xyz= '------'
-
-                    m_hex = a.hex 
-                    if m_hex == None:
-                        m_hex= '------'
-                    m_flight = a.flight
-                    if m_flight == None:
-                        m_flight= '-------'
-                    m_altitude = a.altitude
-                    if m_altitude == None:
-                        m_altitude= '------'
-                    m_distance = a.distance
-                    if m_distance == None:
-                        m_distance= '------'
-                    m_rssi = a.rssi
-                    if m_rssi == None:
-                        m_rssi= '------'
-                    m_type = a.m_type
-                    if m_type == None:
-                        m_type= '------'
-                    m_category = a.m_category
-                    if m_category == None:
-                        m_category= '----'
-                    m_seen = a.seen
-                    if m_seen == None:
-                        m_seen= '------'
-                    m_messages = a.messages
-                    if m_messages == None:
-                        m_messages= '------'
-                    m_lat = a.lat
-                    if m_lat == None:
-                        m_lat= '------'
-                    m_lon = a.lon
-                    if m_lon == None:
-                        m_lon= '------'
-                    m_time = fd.time.strftime("%c")
-                    if m_time == None:
-                        m_time='---'
-
-                    txt2= "| {:<7} | {:<8}| {:>5} |{:>5} | {:>5} | {:>12} | {:>4} |  {:>4} | {:>5} | {:>10} |{:>10} |{:>20} |\n".format(
-                        m_hex,  # icao {:<7}
-                        m_flight,  # flight {:<7}
-                        "%.4d" % m_altitude,  # icao {:>5}
-                        "%.1f" % m_distance,  # {:>5} |
-                        "%3.1f" % m_rssi,  # icao {:>5}
-                        m_type,  # icao {:>12}
-                        m_category,  # {:>4}
-                        m_seen,  # {:>4}
-                        m_messages,  # {:>5}
-                        "%9.6f" % m_lat,
-                        "%9.6f" % m_lon,
-                        #100) # alert
-                        m_time)
-                        #(fd.time)) # alert
-                    # print(txt2)
-                    # print(fd.time)
-                    # print(fd.time.strftime("%c"))
-
-
-
+                    f = open("datatracks.txt", "a")
+                    txt = "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\n".format(
+                    a.ident_desc(), "%.3f" % a.distance, "%.0f" % a.altitude, "%.8f" % a.lat, "%.8f" % a.lon,a.m_category,a.m_type, (fd.time))
                     #txt = "{}\t{}\t{}\t{}\t{}\t{}\n".format(
                     #a.ident_desc(), "%.3f" % a.distance, "%.0f" % a.altitude, "%.8f" % a.lat, "%.8f" % a.lon, (fd.time))
-                    f.write(txt2)
+                    f.write(txt)
                     f.close()
                     #print(txt)
                     # now push to AWSIOT
@@ -396,7 +303,7 @@ if __name__ == "__main__":
                     #message['tUTC'] = "{}".format(fd.time)
                     messageJson = json.dumps(message)
                     #print(messageJson)
-                    #publishtoAWSIOT(messageJson)
+                    publishtoAWSIOT(messageJson)
                 if a.hex in alarms: # (UPDATE ALARMS: CHANGE DISTANCE)
                     # if it's already in the alarms dict, check to see if we're closer
                     if a.distance < alarms[a.hex][0].distance:
@@ -432,72 +339,11 @@ if __name__ == "__main__":
                         faInfo = False
                     # Write plane to tweet to data.txt file.
                     f = open("data.txt", "a")
-                    # txt = "{}\t{}\t{}\t{}\n".format(
-                    #     a[0].ident_desc(), "%.3f" % a[0].distance, "%.0f" % a[0].altitude, (fd.time))
-                    # f.write(txt)
-
-                    m_hex = a[0].hex 
-                    if m_hex == None:
-                        m_hex= '------'
-                    m_flight = a[0].flight
-                    if m_flight == None:
-                        m_flight= '-------'
-                    m_altitude = a[0].altitude
-                    if m_altitude == None:
-                        m_altitude= '------'
-                    m_distance = a[0].distance
-                    if m_distance == None:
-                        m_distance= '------'
-                    m_rssi = a[0].rssi
-                    if m_rssi == None:
-                        m_rssi= '------'
-                    m_type = a[0].m_type
-                    if m_type == None:
-                        m_type= '------'
-                    m_category = a[0].m_category
-                    if m_category == None:
-                        m_category= '----'
-                    m_seen = a[0].seen
-                    if m_seen == None:
-                        m_seen= '------'
-                    m_messages = a[0].messages
-                    if m_messages == None:
-                        m_messages= '------'
-                    m_lat = a[0].lat
-                    if m_lat == None:
-                        m_lat= '------'
-                    m_lon = a[0].lon
-                    if m_lon == None:
-                        m_lon= '------'
-                    m_time = fd.time.strftime("%c")
-                    if m_time == None:
-                        m_time='---'
-
-                    txt3= "| {:<7} | {:<8}| {:>5} |{:>5} | {:>5} | {:>12} | {:>4} |  {:>4} | {:>5} | {:>10} |{:>10} |{:>20} |".format(
-                        m_hex,  # icao {:<7}
-                        m_flight,  # flight {:<7}
-                        "%.4d" % m_altitude,  # icao {:>5}
-                        "%.1f" % m_distance,  # {:>5} |
-                        "%3.1f" % m_rssi,  # icao {:>5}
-                        m_type,  # icao {:>12}
-                        m_category,  # {:>4}
-                        m_seen,  # {:>4}
-                        m_messages,  # {:>5}
-                        "%9.6f" % m_lat,
-                        "%9.6f" % m_lon,
-                        #100) # alert
-                        m_time)
-                        #(fd.time)) # alert
-                    # print(txt2)
-                    # print(fd.time)
-                    # print(fd.time.strftime("%c"))
-
-
-                    f.write(txt3+'\n')
+                    txt = "{}\t{}\t{}\t{}\n".format(
+                        a[0].ident_desc(), "%.3f" % a[0].distance, "%.0f" % a[0].altitude, (fd.time))
+                    f.write(txt)
                     f.close()
-                    print(txt3)
-                    #print("{}\t{}\t{}\t{}".format(
-                    #    a[0].ident_desc(), "%.3f" % a[0].distance, "%.0f" % a[0].altitude, (fd.time)))
+                    print(txt)
                     # Write plane to tweet to AWSIOT cloud
                     message = {}
                     message['ID'] = a[0].ident_desc()
@@ -508,7 +354,7 @@ if __name__ == "__main__":
                     message['tUTC'] = "{}".format(fd.time)
                     messageJson = json.dumps(message)
                     # print(messageJson)
-                    #publishtoAWSIOT(messageJson)
+                    publishtoAWSIOT(messageJson)
 
                     finishedalarms.append(a[0].hex)
 
@@ -518,4 +364,3 @@ if __name__ == "__main__":
 
         # flush output for following in log file
         sys.stdout.flush()
-

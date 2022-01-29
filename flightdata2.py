@@ -27,25 +27,35 @@ from datetime import datetime
 from configparser import ConfigParser
 
 # Read the configuration file for this application.
-parser = ConfigParser()
-parser.read('/home/pi/OverIrvine/config.ini')
+m_parser = ConfigParser()
+m_parser.read('/home/pi/OverIrvine/config.ini')
+print(m_parser.sections())
+print(m_parser['abovetustin']['data_url'])
 
 # Assign receiver variables.
-receiver_latitude = float(parser.get('receiver', 'latitude'))
-receiver_longitude = float(parser.get('receiver', 'longitude'))
-m_data_url = parser.get('abovetustin','data_url')
+receiver_latitude = float(m_parser.get('receiver', 'latitude'))
+receiver_longitude = float(m_parser.get('receiver', 'longitude'))
+m_data_url = m_parser.get('abovetustin','data_url')
+print('m_data_url=')
+print(m_data_url)
 
 
 class FlightData():
-    def __init__(self, data_url=m_data_url, parser=None):
+    def __init__(self, data_url=m_data_url, parser=m_parser):
         self.data_url = data_url
         self.parser = parser
         self.aircraft = None
+        print('calling refresh')
         self.refresh()
+        print('refresh called')
 
 
     def refresh(self):
         try:
+            print('inside refresh')
+            # open the data url
+            print('opening url:')
+            print(self.data_url)
             self.req = urlopen(self.data_url)
 
             # read data from the url
@@ -53,11 +63,17 @@ class FlightData():
 
             # load in the json
             self.json_data = json.loads(self.raw_data.decode())
+            #print(self.json_data)
 
             # get time from json
+            print('setting time')
+            #self.time = datetime.fromtimestamp(
+            #    self.parser.time(self.json_data))
             self.time = datetime.fromtimestamp(
-                self.parser.time(self.json_data))
-            
+                self.json_data['now'])
+            print('set time')
+            sleep(10)
+
             # load all the aircarft
             self.aircraft = self.parser.aircraft_data(
                 self.json_data, self.time)
@@ -255,7 +271,7 @@ if __name__ == "__main__":
     flightdata = FlightData()
     while True:
         #os.system('clear')
-        #print("Now: {}".format(flightdata.time.strftime('%Y-%m-%d %H:%M:%S')))
+        print("Now: {}".format(flightdata.time.strftime('%Y-%m-%d %H:%M:%S')))
         print("|  icao   | flight  | miles |   az  |  el  |  alt  | mi/h  | vert  | rssi  | mesgs | seen |")
         print("|---------+---------+-------+-------+------+-------+-------+-------+-------+-------+------|")
         sortedlist = []

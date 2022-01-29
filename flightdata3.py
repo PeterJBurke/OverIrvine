@@ -27,44 +27,17 @@ from datetime import datetime
 from configparser import ConfigParser
 
 # Read the configuration file for this application.
-parser = ConfigParser()
-parser.read('/home/pi/OverIrvine/config.ini')
+m_parser = ConfigParser()
+m_parser.read('/home/pi/OverIrvine/config.ini')
+print(m_parser.sections())
+print(m_parser['abovetustin']['data_url'])
 
 # Assign receiver variables.
-receiver_latitude = float(parser.get('receiver', 'latitude'))
-receiver_longitude = float(parser.get('receiver', 'longitude'))
-m_data_url = parser.get('abovetustin','data_url')
-
-
-class FlightData():
-    def __init__(self, data_url=m_data_url, parser=None):
-        self.data_url = data_url
-        self.parser = parser
-        self.aircraft = None
-        self.refresh()
-
-
-    def refresh(self):
-        try:
-            self.req = urlopen(self.data_url)
-
-            # read data from the url
-            self.raw_data = self.req.read()
-
-            # load in the json
-            self.json_data = json.loads(self.raw_data.decode())
-
-            # get time from json
-            self.time = datetime.fromtimestamp(
-                self.parser.time(self.json_data))
-            
-            # load all the aircarft
-            self.aircraft = self.parser.aircraft_data(
-                self.json_data, self.time)
-
-        except Exception:
-            print("exception in FlightData.refresh():")
-            traceback.print_exc()
+receiver_latitude = float(m_parser.get('receiver', 'latitude'))
+receiver_longitude = float(m_parser.get('receiver', 'longitude'))
+m_data_url = m_parser.get('abovetustin','data_url')
+print('m_data_url=')
+print(m_data_url)
 
 
 class AirCraftData():
@@ -249,13 +222,58 @@ class Dump1090DataParser(AircraftDataParser):
         return json_data['now']
 
 
+class FlightData():
+    def __init__(self, data_url=m_data_url, parser=Dump1090DataParser()):
+        self.data_url = data_url
+        self.parser = parser
+        self.aircraft = None
+        print('calling refresh')
+        self.refresh()
+        print('refresh called')
+
+
+    def refresh(self):
+        try:
+            print('inside refresh')
+            # open the data url
+            print('opening url:')
+            print(self.data_url)
+            self.req = urlopen(self.data_url)
+
+            # read data from the url
+            self.raw_data = self.req.read()
+
+            # load in the json
+            self.json_data = json.loads(self.raw_data.decode())
+            #print(self.json_data)
+
+            # get time from json
+            print('setting time')
+            self.time = datetime.fromtimestamp(
+                self.parser.time(self.json_data))
+            #self.time = datetime.fromtimestamp(
+            #    self.json_data['now'])
+            print('set time')
+            #sleep(10)
+
+            # load all the aircarft
+            self.aircraft = self.parser.aircraft_data(
+                self.json_data, self.time)
+
+        except Exception:
+            print("exception in FlightData.refresh():")
+            traceback.print_exc()
+
+
 if __name__ == "__main__":
     import os
 
     flightdata = FlightData()
+
     while True:
+        print(flightdata.aircraftdata)
         #os.system('clear')
-        #print("Now: {}".format(flightdata.time.strftime('%Y-%m-%d %H:%M:%S')))
+        print("Now: {}".format(flightdata.time.strftime('%Y-%m-%d %H:%M:%S')))
         print("|  icao   | flight  | miles |   az  |  el  |  alt  | mi/h  | vert  | rssi  | mesgs | seen |")
         print("|---------+---------+-------+-------+------+-------+-------+-------+-------+-------+------|")
         sortedlist = []
@@ -267,18 +285,20 @@ if __name__ == "__main__":
         # actually do the sorting here
         sortedlist.sort(key=lambda x: x.distance)
 
-        for a in sortedlist:
-            print("| {:<7} | {:^8}| {:>5} | {:>5} | {:>4} | {:>5} | {:>5} | {:>+5} | {:>5} | {:>5} | {:>4} |".format(
-                a.hex,
-                a.flight,
-                "%.1f" % a.distance,
-                "%.1f" % a.az,
-                "%.1f" % a.el,
-                a.altitude,
-                "%.1f" % a.speed,
-                a.vert_rate,
-                "%0.1f" % a.rssi,
-                a.messages,
-                "%.1f" % a.seen))
+        # for a in sortedlist:
+        #     print(a)
+        # for a in sortedlist:
+        #     print("| {:<7} | {:^8}| {:>5} | {:>5} | {:>4} | {:>5} | {:>5} | {:>+5} | {:>5} | {:>5} | {:>4} |".format(
+        #         a.hex,
+        #         a.flight,
+        #         "%.1f" % a.distance,
+        #         "%.1f" % a.az,
+        #         "%.1f" % a.el,
+        #         a.altitude,
+        #         "%.1f" % a.speed,
+        #         a.vert_rate,
+        #         "%0.1f" % a.rssi,
+        #         a.messages,
+        #         "%.1f" % a.seen))
         sleep(0.5)
         flightdata.refresh()
